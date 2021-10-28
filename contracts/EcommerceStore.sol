@@ -36,9 +36,22 @@ contract EcommerceStore {
     }
 
     function getProduct(uint _productId) public view returns (uint, string memory, string memory, string memory, string memory, uint, uint, ProductCondition, address) {
-        Product memory productInStore = stores[productIdInStore[_productId]][_productId];
+        Product memory productInStore = getProductById(_productId);
         return (productInStore.id, productInStore.name, productInStore.category, productInStore.imageLink, productInStore.descLink, 
             productInStore.startTime, productInStore.price, productInStore.condition, productInStore.buyer);
+    }
+
+    function buyProductById(uint _productId) payable public {
+        Product memory productInStore = getProductById(_productId);
+        require(productInStore.buyer == address(0));
+        require(msg.value >= productInStore.price);
+        productInStore.buyer = msg.sender;
+        stores[productIdInStore[_productId]][_productId] = productInStore;
+
+    }
+
+    function getProductById(uint _productId) private view returns (Product memory) {
+        return stores[productIdInStore[_productId]][_productId];
     }
 
 }

@@ -23,8 +23,13 @@ const App = {
             const accounts = await web3.eth.getAccounts();
             this.account = accounts[0];
 
-            this.renderStore();
-
+            if ($("#product-details").length > 0){
+                const productId = new URLSearchParams(window.location.search).get('id');
+                this.renderProductDetails(productId);
+            } else {
+                this.renderStore();
+            }
+            
             $("#add-item-to-store").submit(function (event) {
                 const req = $("#add-item-to-store").serialize();
                 let params = JSON.parse('{"' + req.replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
@@ -36,6 +41,16 @@ const App = {
                 App.saveProduct(decodedParams);
                 event.preventDefault();
             });
+
+            $("#buy-now").submit(function(event) {
+                $("#msg").hide();
+                var sendAmount = $("#buy-now-price").val();
+                var productId = $("#product-id").val();
+                App.instance.methods.buyProductById(productId).send({value: sendAmount, from: App.account})
+                $("#msg").show();
+                $("#msg").html("You have successfully purchased the product!");
+                event.preventDefault();
+               });
 
         } catch (error) {
             console.error("Could not connect to contract or chain.");
@@ -65,12 +80,22 @@ const App = {
         node.addClass("col-sm-3 text-center col-margin-bottom-1 product");
         node.append("<div class='title'>" + f[1] + "</div>");
         node.append("<div> Price: " + displayPrice(f[6]) + "</div>");
+        node.append("<a href='product.html?id=" + f[0] + "'>Details</div>")
         if (f[8] === '0x0000000000000000000000000000000000000000') {
             $("#product-list").append(node);
         } else {
             $("#product-purchased").append(node);
         }
     },
+
+    renderProductDetails: async function(productId) {
+        const { getProduct } = this.instance.methods;
+        var p = await getProduct(productId).call();
+        $("#product-name").html(p[1]);
+        $("#product-price").html(displayPrice(p[6]));
+        $("#buy-now-price").val(p[6]);
+        $("#product-id").val(p[0]);
+       },
 
 };
 
