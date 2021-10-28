@@ -1,16 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity >=0.8.0 <0.9.0;
-
+import './Escrow.sol';
 contract EcommerceStore {
 
     enum ProductCondition {NEW, USED}
 
     uint public productIndex;
 
+    address public arbiter;
+
     mapping(address => mapping(uint => Product)) stores; 
 
     mapping (uint => address) productIdInStore;
+
+    mapping(uint => address) productEscrow;
     struct Product {
         uint id;
         string name;
@@ -23,8 +27,9 @@ contract EcommerceStore {
         address buyer;
     }
 
-    constructor(){
+    constructor(address _arbiter){
         productIndex = 0;
+        arbiter = _arbiter;
     }
 
     function addProductToStore(string memory _name, string memory _category, string memory _imageLink,
@@ -47,11 +52,24 @@ contract EcommerceStore {
         require(msg.value >= productInStore.price);
         productInStore.buyer = msg.sender;
         stores[productIdInStore[_productId]][_productId] = productInStore;
-
+        Escrow escrow = (new Escrow){value: msg.value}(_productId, payable(msg.sender), payable(productIdInStore[_productId]), arbiter); 
+        productEscrow[_productId] = address(escrow);
     }
 
     function getProductById(uint _productId) private view returns (Product memory) {
         return stores[productIdInStore[_productId]][_productId];
+    }
+
+    function escrowInfo(uint _productId) public view returns (address, address, address, bool, uint, uint) {
+        return Escrow(productEscrow[_productId]).escrowInfo();
+    }
+
+    function releaseAmountToSeller(uint _productId) public {
+        Escrow(productEscrow[_productId]).releaseAmountToSeller(msg.sender);
+    }
+
+    function refundAmountToBuyer(uint _productId) public {
+        Escrow(productEscrow[_productId]).refundAmountToBuyer(msg.sender);
     }
 
 }

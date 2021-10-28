@@ -61,6 +61,22 @@ const App = {
                 event.preventDefault();
                });
 
+               $("#release-funds").click(async function(event) {
+                let productId = new URLSearchParams(window.location.search).get('id');
+                $("#msg").html("Your transaction has been submitted. Please wait for few seconds for the confirmation").show();
+                console.log(productId);
+                await App.instance.methods.releaseAmountToSeller(productId).send({from: App.account, gas: 4700000})
+                location.reload();
+               });
+
+               $("#refund-funds").click(async function(event) {
+                let productId = new URLSearchParams(window.location.search).get('id');
+                $("#msg").html("Your transaction has been submitted. Please wait for few seconds for the confirmation").show();
+                console.log(productId);
+                await App.instance.methods.refundAmountToBuyer(productId).send({from: App.account, gas: 4700000})
+                location.reload();
+               });
+
         } catch (error) {
             console.error("Could not connect to contract or chain.");
         }
@@ -139,6 +155,23 @@ const App = {
             const content = file.toString();
             $("#product-desc").append("<div>" + content + "</div>");
         });
+        if (p[8] === '0x0000000000000000000000000000000000000000') {
+            $("#escrow-info").hide();
+        } else {
+            $("#buy-now").hide();
+            const { escrowInfo } = this.instance.methods;
+            var f = await escrowInfo(productId).call();
+            console.log(f);
+            $("#buyer").html(f[0]);
+            $("#seller").html(f[1]);
+            $("#arbiter").html(f[2]);
+            $("#release-count").html(f[4]);
+            $("#refund-count").html(f[5]);
+            if (f[4] == 2 || f[5] == 2) {
+                $("#release-funds").hide();
+                $("#refund-funds").hide();
+            }
+        }
        },
 
 };
