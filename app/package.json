@@ -9,13 +9,14 @@
   },
   "devDependencies": {
     "copy-webpack-plugin": "^4.6.0",
+    "css-loader": "^0.26.1",
+    "style-loader": "^0.13.1",
     "webpack": "^4.28.1",
     "webpack-cli": "^3.2.1",
-    "webpack-dev-server": "^3.1.14",
-    "css-loader": "^0.26.1",
-    "style-loader": "^0.13.1"
+    "webpack-dev-server": "^3.1.14"
   },
   "dependencies": {
+    "ipfs-http-client": "29.1.1",
     "web3": "^1.0.0-beta.37"
   }
 }
