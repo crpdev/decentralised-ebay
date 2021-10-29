@@ -26,19 +26,19 @@ const App = {
             const accounts = await web3.eth.getAccounts();
             this.account = accounts[0];
 
-            if ($("#product-details").length > 0){
+            if ($("#product-details").length > 0) {
                 const productId = new URLSearchParams(window.location.search).get('id');
                 this.renderProductDetails(productId);
             } else {
                 this.renderStore();
             }
 
-            $("#product-image").change(function(event) {
+            $("#product-image").change(function (event) {
                 const file = event.target.files[0];
                 reader = new window.FileReader();
                 reader.readAsArrayBuffer(file);
             });
-            
+
             $("#add-item-to-store").submit(function (event) {
                 const req = $("#add-item-to-store").serialize();
                 let params = JSON.parse('{"' + req.replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
@@ -51,31 +51,31 @@ const App = {
                 event.preventDefault();
             });
 
-            $("#buy-now").submit(function(event) {
+            $("#buy-now").submit(function (event) {
                 $("#msg").hide();
                 var sendAmount = $("#buy-now-price").val();
                 var productId = $("#product-id").val();
-                App.instance.methods.buyProductById(productId).send({value: sendAmount, from: App.account})
+                App.instance.methods.buyProductById(productId).send({ value: sendAmount, from: App.account })
                 $("#msg").show();
                 $("#msg").html("You have successfully purchased the product!");
                 event.preventDefault();
-               });
+            });
 
-               $("#release-funds").click(async function(event) {
+            $("#release-funds").click(async function (event) {
                 let productId = new URLSearchParams(window.location.search).get('id');
                 $("#msg").html("Your transaction has been submitted. Please wait for few seconds for the confirmation").show();
                 console.log(productId);
-                await App.instance.methods.releaseAmountToSeller(productId).send({from: App.account, gas: 4700000})
+                await App.instance.methods.releaseAmountToSeller(productId).send({ from: App.account, gas: 4700000 })
                 location.reload();
-               });
+            });
 
-               $("#refund-funds").click(async function(event) {
+            $("#refund-funds").click(async function (event) {
                 let productId = new URLSearchParams(window.location.search).get('id');
                 $("#msg").html("Your transaction has been submitted. Please wait for few seconds for the confirmation").show();
                 console.log(productId);
-                await App.instance.methods.refundAmountToBuyer(productId).send({from: App.account, gas: 4700000})
+                await App.instance.methods.refundAmountToBuyer(productId).send({ from: App.account, gas: 4700000 })
                 location.reload();
-               });
+            });
 
         } catch (error) {
             console.error("Could not connect to contract or chain.");
@@ -91,33 +91,35 @@ const App = {
             this.web3.utils.toWei(product["product-price"], 'ether'), product["product-condition"]).send({ from: this.account, gas: 4700000 });
     },
 
-    saveImageOnIpfs: async function(reader) {
-        return new Promise(function(resolve, reject) {
-         const buffer = Buffer.from(reader.result);
-         ipfs.add(buffer)
-         .then((response) => {
-          console.log(response)
-          resolve(response[0].hash);
-         }).catch((err) => {
-          console.error(err)
-          reject(err);
-         })
+    saveImageOnIpfs: async function (reader) {
+        return new Promise(function (resolve, reject) {
+            const buffer = Buffer.from(reader.result);
+            ipfs.add(buffer)
+                .then((response) => {
+                    console.log(response)
+                    resolve(response[0].hash);
+                }).catch((err) => {
+                    console.error(err)
+                    reject(err);
+                })
         })
-       },
+    },
 
-       saveTextBlobOnIpfs: async function(blob) {
-  return new Promise(function(resolve, reject) {
-   const descBuffer = Buffer.from(blob, 'utf-8');
-   ipfs.add(descBuffer)
-   .then((response) => {
-    console.log(response)
-    resolve(response[0].hash);
-   }).catch((err) => {
-    console.error(err)
-    reject(err);
-   })
-  })
- },
+    saveTextBlobOnIpfs: async function (blob) {
+        return new Promise(function (resolve, reject) {
+            const descBuffer = Buffer.from(blob, 'utf-8');
+            ipfs.add(descBuffer)
+                .then((response) => {
+                    console.log(response)
+                    resolve(response[0].hash);
+                }).catch((err) => {
+                    console.error(err)
+                    reject(err);
+                })
+        })
+    },
+
+    // Calling blockchain
 
     renderStore: async function () {
         const { productIndex } = this.instance.methods;
@@ -126,6 +128,28 @@ const App = {
             this.renderProduct(i);
         }
     },
+
+    // Calling MongoDB
+
+    // renderStore: async function () {
+    //     var renderProduct = this.renderProduct;
+    //     $.ajax({
+    //         url: "http://localhost:3000/products",
+    //         type: 'get',
+    //         contentType: 'application/json; charset=utf-8',
+    //         data: {}
+    //     }).done(function (data) {
+    //         console.log(data);
+    //         while (data.length > 0) {
+    //             let chunks = data.splice(0, 4);
+    //             chunks.forEach(function (value) {
+    //                 renderProduct(value);
+    //             });
+    //         }
+    //     });
+    // },
+
+    // Calling Blockchain
 
     renderProduct: async function (index) {
         const { getProduct } = this.instance.methods;
@@ -143,7 +167,20 @@ const App = {
         }
     },
 
-    renderProductDetails: async function(productId) {
+    // Calling MongoDB
+
+    // renderProduct: async function (product) {
+    //     console.log(product);
+    //     let node = $("<div/>");
+    //     node.addClass("col-sm-3 text-center col-margin-bottom-1 product");
+    //     node.append("<img src='http://localhost:8080/ipfs/" + product.ipfsImageHash + "' />");
+    //     node.append("<div class='title'>" + product.name + "");
+    //     node.append("<div> Price: " + displayPrice(product.price.toString()) + "");
+    //     node.append("<a href='product.html?id=" + product.blockchainId + "'>Details");
+    //     $("#product-list").append(node);
+    // },
+
+    renderProductDetails: async function (productId) {
         const { getProduct } = this.instance.methods;
         var p = await getProduct(productId).call();
         $("#product-image").html("<img width='100' src='http://localhost:8080/ipfs/" + p[3] + "' />");
@@ -151,7 +188,7 @@ const App = {
         $("#product-price").html(displayPrice(p[6]));
         $("#buy-now-price").val(p[6]);
         $("#product-id").val(p[0]);
-        ipfs.cat(p[4]).then(function(file) {
+        ipfs.cat(p[4]).then(function (file) {
             const content = file.toString();
             $("#product-desc").append("<div>" + content + "</div>");
         });
@@ -172,7 +209,7 @@ const App = {
                 $("#refund-funds").hide();
             }
         }
-       },
+    },
 
 };
 
