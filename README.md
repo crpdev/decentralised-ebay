@@ -1,4 +1,4 @@
-# Decntralised Ecommerce Store
+# Decentralised Ecommerce Store
 
 ## Objective
 
