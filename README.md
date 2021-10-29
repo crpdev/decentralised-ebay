@@ -4,11 +4,11 @@
 
 To build a decentralised ecommerce store using Solidity and HTML/ CSS/ Javascript that emulates the following behaviours:
 
-- Contract owner/ Arbiter account acts as Escrow account to manage funds during a trade
-- Owner/ Seller account must be able to add new items to the ecommerce store
-- Buyer/ Consumer account must be able to buy the listed items from the ecommerce store
-- Arbiter/ Contract account must act as the central decision authority when issues pop up for refund/ release of amounts
-- Multi-Sig to ensure consensus is arrived when issuing refund or release of funds to buyer/ seller
+- **Owner/ Seller account** must be able to add new items to the ecommerce store
+- **Buyer/ Consumer account** must be able to buy the listed items from the ecommerce store
+- **Arbiter/ Contract account** must act as the central decision authority when issues pop up for refund/ release of amounts
+- **Multi-Sig to ensure consensus** is arrived when issuing refund or release of funds to buyer/ seller
+- The trade is managed by an **Escrow account** and upon consensys by 2/3 parties, the funds are either refunded to the buyer or released to the seller
 - Store must have restrictions on the actions perfomed, which must be embedded to the Smart Contract
 ----------
 ## Technology Stack
